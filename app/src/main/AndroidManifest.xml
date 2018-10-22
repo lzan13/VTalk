@@ -33,6 +33,10 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
+        <!--适配全面屏-->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
     </application>
 
 </manifest>

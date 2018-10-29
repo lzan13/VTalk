@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,8 +26,10 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     private View talkLayout;
+    private SwipeRefreshLayout mRefreshLayout;
     private TextView talkContentView;
     private TextView talkAuthorView;
+
     private TalkBean talkBean;
 
     @Override
@@ -34,21 +37,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        init();
+        initView();
+        initData();
     }
 
     /**
-     * 初始化
+     * 初始化 UI
      */
-    private void init() {
-
+    private void initView() {
         talkLayout = findViewById(R.id.layout_talk);
+        mRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         talkContentView = findViewById(R.id.text_talk_content);
         talkAuthorView = findViewById(R.id.text_talk_author);
 
-        findViewById(R.id.btn_get).setOnClickListener(viewListener);
         findViewById(R.id.btn_share).setOnClickListener(viewListener);
         findViewById(R.id.btn_qr_code).setOnClickListener(viewListener);
+        mRefreshLayout.setColorSchemeResources(R.color.colorAccent);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getRandomTalk();
+            }
+        });
+    }
+
+    /**
+     * 初始化数据
+     */
+    private void initData() {
+        mRefreshLayout.setRefreshing(true);
+        getRandomTalk();
     }
 
     /**
@@ -58,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.btn_get:
-                    getRandomTalk();
-                    break;
                 case R.id.btn_share:
                     shareSingleImage();
                     break;
@@ -78,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         TalkHelper.getInstance().getRandomTalk(new Callback() {
             @Override
             public void onDone(Object object) {
+                mRefreshLayout.setRefreshing(false);
                 talkBean = (TalkBean) object;
                 VMLog.i("获取的一言数据 %s", talkBean.toString());
                 runOnUiThread(new Runnable() {
@@ -90,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(int code, String desc) {
+                mRefreshLayout.setRefreshing(false);
                 VMLog.e("请求错误 %d, %s", code, desc);
             }
         });

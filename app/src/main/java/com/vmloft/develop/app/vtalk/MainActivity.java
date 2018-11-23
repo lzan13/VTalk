@@ -3,7 +3,9 @@ package com.vmloft.develop.app.vtalk;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
+    private MainActivity mActivity;
     private View talkLayout;
     private SwipeRefreshLayout mRefreshLayout;
     private TextView talkContentView;
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mActivity = this;
 
         initView();
         initData();
@@ -159,15 +164,28 @@ public class MainActivity extends AppCompatActivity {
         }
         talkLayout.setDrawingCacheEnabled(false);
 
-        //由文件得到uri
-        Uri imageUri = Uri.fromFile(new File(imagePath));
-        VMLog.i("uri: %s", imageUri);  //输出：file:///storage/emulated/0/test.jpg
-
         Intent shareIntent = new Intent();
+
+        File file = new File(imagePath);
+        //由文件得到uri
+        Uri imageUri;
+        //判断是否是7.0以上的设备
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            //通过FileProvider创建一个content类型的Uri
+            imageUri = FileProvider.getUriForFile(mActivity, mActivity.getPackageName() + ".provider", file);
+            //添加这一句表示对目标应用临时授权该Uri所代表的文件
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            // 还用以前的就好了
+            imageUri = Uri.fromFile(file);
+        }
+
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
         shareIntent.setType("image/*");
         startActivity(Intent.createChooser(shareIntent, "分享到"));
+
+        VMLog.i("uri: %s", imageUri);  //输出：file:///storage/emulated/0/test.jpg
     }
 
     //    //分享多张图片

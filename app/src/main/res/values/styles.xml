@@ -6,6 +6,17 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- 设置允许修改系统栏的背景色 比如导航栏 状态栏等-->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!--半透明状态栏-->
+        <item name="android:windowTranslucentStatus">true</item>
+        <!--设置状态栏颜色-->
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <!--设置导航栏背景色-->
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <!--设置导航栏半透明效果-->
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
 </resources>
